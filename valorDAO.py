@@ -1,4 +1,4 @@
-
+__author__ = "guineitor.traps236@gmail.com"
 
 import sys, traceback
 from bson.json_util import dumps 
@@ -29,5 +29,63 @@ class ValorDAO(object):
 			return None 	
 		return values
 
-	def get_final():
-		return {"final":"true"}	
+	def get_final(self, group_id):
+		#get sum group 
+		sum_by_group = 0.00
+		try:
+			pipeline = [{"$group":{"_id": "$group_id", "sum": {"$sum":"$value"}}},{"$match":{"_id":group_id}}]
+			result = self.values.aggregate(pipeline)
+			result = result["result"]
+			for r in result:
+				sum_by_group = r["sum"]
+			
+		except:
+			print traceback.print_exc(file=sys.stdout)
+			print "ferrou"	
+			return  {"final":"ferrou"}
+
+
+		count_user_by_group = 0
+		try:
+			pipeline = [{"$match":{"group_id":group_id}}, {"$group":{"_id":"$name", "count":{"$sum":1}}}]
+			result = self.values.aggregate(pipeline)
+			result = result["result"]
+			for r in result:
+				count_user_by_group = r["count"]
+				print count_user_by_group
+		except:
+			print traceback.print_exc(file=sys.stdout)
+			print "ferrou"	
+			return  {"final":"ferrou"}	
+
+		final = {"result":"sucess"}
+		return final
+
+	
+	def get_sum_by_group(self, group_id):
+		sum_by_group = {}
+		try:
+			pipeline = [{"$group":{"_id": "$group_id", "sum": {"$sum":"$value"}}},{"$match":{"_id":group_id}}]
+			result = self.values.aggregate(pipeline)
+			result = result["result"]
+			# for r in result:
+			# 	sum_by_group = r["sum"]
+			
+		except:
+			print traceback.print_exc(file=sys.stdout)
+			print "ferrou"	
+			return  {"result":"ferrou"}
+		return sum_by_group
+
+	def get_count_users_by_group(self, group_id):
+		count_user_by_group = {}
+		try:
+			pipeline = [{"$match":{"group_id":group_id}}, {"$group":{"_id":"$name", "count":{"$sum":1}, "totalName":{"$sum":"$value"}}}]
+			result = self.values.aggregate(pipeline)
+			count_user_by_group = result["result"]
+			print count_user_by_group
+		except:
+			print traceback.print_exc(file=sys.stdout)
+			print "ferrou"	
+			return  {"result":"ferrou"}
+		return count_user_by_group

@@ -35,7 +35,7 @@ def add_value_by_name():
 		value = bottle.request.forms.get("value")
 		group_id = bottle.request.forms.get("group_id")
 
-		v = values.insert_values_by_user(username, value, group_id)	
+		v = values.insert_values_by_user(username, float(value), group_id)	
 		bottle.response.content_type = 'application/json'
 		return dumps(v)
 
@@ -119,13 +119,19 @@ def process_login():
     else:
         return dumps("invalid Login")
 
-@bottle.get('/final')
+@bottle.get('/final/<group_id>')
 def get_final_result(group_id):
-	if username is None:
-		return {"logged":"false"}
-	else:
-		final_result = values.get_final(group_id)
-		return final_result         
+    cookie = bottle.request.get_cookie("session")
+    username = sessions.get_username(cookie)  # see if user is logged in
+    if username is None:
+      return {"logged":"false"}
+    else:
+      # final_result = value.get_final(users, totalValue)
+      final_result = values.get_count_users_by_group(group_id)
+      bottle.response.content_type = 'application/json'
+      return dumps(final_result)
+
+
 
 connection_string = "mongodb://127.0.0.1"
 connection = pymongo.MongoClient(connection_string)
