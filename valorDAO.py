@@ -16,8 +16,8 @@ class ValorDAO(object):
 			self.values.insert(value)
 		except:
 			print traceback.print_exc(file=sys.stdout)
-			return 'fail'
-		return 'sucess'		
+			return 0
+		return 1		
 		
 	def get_value_by_user(self, name, group_id):
 		try:
@@ -27,4 +27,7 @@ class ValorDAO(object):
 		except:
 			print 'ferrou'
 			return None 	
-		return values	
+		return values
+
+	def get_final():
+		return {"final":"true"}	
