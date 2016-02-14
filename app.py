@@ -119,17 +119,33 @@ def process_login():
     else:
         return dumps("invalid Login")
 
-@bottle.get('/final/<group_id>')
-def get_final_result(group_id):
+@bottle.post('/final')
+def get_final_result():
+    group_id = bottle.request.forms.get("group_id")
     cookie = bottle.request.get_cookie("session")
     username = sessions.get_username(cookie)  # see if user is logged in
     if username is None:
-      return {"logged":"false"}
+        return {"logged":"false"}
     else:
-      # final_result = value.get_final(users, totalValue)
-      final_result = values.get_count_users_by_group(group_id)
-      bottle.response.content_type = 'application/json'
-      return dumps(final_result)
+        
+        sum_by_group = values.get_sum_by_group(group_id)
+        list_user_by_group = values.get_count_users_by_group(group_id)
+        values.save_final(list_user_by_group, sum_by_group, group_id)
+    bottle.response.content_type = 'application/json'
+    return dumps(list_user_by_group)
+
+@bottle.get('/final/<group_id>')
+def show_final_result(group_id):
+    cookie = bottle.request.get_cookie("session")
+    username = sessions.get_username(cookie)  # see if user is logged in
+    if username is None:
+        return {"logged":"false"}
+    else:
+        final = values.get_final(group_id)
+    bottle.response.content_type = 'application/json'
+    return dumps(final)
+    return dumps()
+
 
 
 
